@@ -3,18 +3,22 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "homepage": "https://pf274.github.io/cs452naturallanguagesqlproject",
   "scripts": {
     "start": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "postinstall": "copy .\\node_modules\\sql.js\\dist\\sql-wasm.wasm .\\src\\assets\\sql-wasm.wasm"
+    "postinstall": "copy .\\node_modules\\sql.js\\dist\\sql-wasm.wasm .\\src\\assets\\sql-wasm.wasm",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "@mui/icons-material": "^6.0.0",
     "@mui/material": "^6.0.0",
+    "gh-pages": "^6.1.1",
     "node-sql-parser": "^5.3.1",
     "openai": "^4.56.1",
     "react": "^18.3.1",

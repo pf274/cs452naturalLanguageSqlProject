@@ -9,7 +9,7 @@ class DBState {
   static instance: Database | null = null;
 }
 
-if (!DBState.initialized) {
+async function initDatabase() {
   DBState.initialized = true;
   const SQL = await initSqlJs({
     locateFile: () => sqliteUrl,
@@ -43,6 +43,9 @@ SELECT * FROM Reviews;
   const response = DBState.instance.exec(initCommand);
   console.log("Database initialized with response:", response);
   DBState.initialized = true;
+}
+if (!DBState.initialized) {
+  initDatabase();
 }
 
 export async function isValidApiKey(apiKey: string): Promise<void | string> {
