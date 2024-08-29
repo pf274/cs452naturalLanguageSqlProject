@@ -2,7 +2,7 @@ import { useState } from "react";
 import "./App.css";
 import { Button, CircularProgress, Snackbar, TextField, ThemeProvider, Typography, createTheme } from "@mui/material";
 import { Search, Send } from "@mui/icons-material";
-import { isValidApiKey, getQuery, validateQuery, getResponse, runQuery } from "./logic";
+import { isValidApiKey, getResponse, getQueries, runQueries } from "./logic";
 import { ChatMessage, ChatMessageComponent } from "./ChatMessage";
 
 const darkTheme = createTheme({
@@ -19,7 +19,6 @@ function App() {
   const [errorShown, setErrorShown] = useState<boolean>(false);
   const [snackError, setSnackError] = useState<string>("");
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
-  const [queries, setQueries] = useState<ChatMessage[]>([]);
 
   async function verifyKey() {
     setLoading(true);
@@ -44,33 +43,13 @@ function App() {
     setLoading(true);
     setPrompt("");
     try {
+      console.log(`------------------\n------------------\n------------------\n${prompt}`);
       const usersChatMessage = new ChatMessage(new Date(), prompt, true);
       setChatMessages((prev) => [...prev, usersChatMessage]);
-      setQueries((prev) => [...prev, usersChatMessage]);
-      const failedQueries = [];
-      let attempts = 0;
-      let valid;
-      let query: string;
-      do {
-        query = await getQuery(apiKey, prompt, failedQueries, queries);
-        valid = await validateQuery(query);
-        if (!valid) {
-          failedQueries.push(query);
-          attempts++;
-        }
-      } while (!valid && attempts < 3);
-      let queryResponse;
-      let response;
-      try {
-        queryResponse = await runQuery(query);
-        setQueries((prev) => [...prev, new ChatMessage(new Date(), query, false)]);
-      } catch (error) {
-        response = `I failed to run this query: ${query}`;
-      }
-      if (queryResponse && !response) {
-        response = await getResponse(apiKey, prompt, query, queryResponse, chatMessages);
-      }
-      const assistantsChatMessage = new ChatMessage(new Date(), response!, false);
+      const queries = await getQueries(apiKey, prompt, chatMessages);
+      const queryResponses = await runQueries(queries);
+      const response = await getResponse(apiKey, prompt, queryResponses, chatMessages);
+      const assistantsChatMessage = new ChatMessage(new Date(), response!, false, queries);
       setChatMessages((prev) => [...prev, assistantsChatMessage]);
     } catch (err) {
       setSnackError((err as Error).message);

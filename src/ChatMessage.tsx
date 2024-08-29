@@ -4,10 +4,12 @@ export class ChatMessage {
   public date: Date;
   public message: string;
   public isUser: boolean;
-  constructor(date: Date, message: string, isUser: boolean) {
+  public queries: string[];
+  constructor(date: Date, message: string, isUser: boolean, queries: string[] = []) {
     this.date = date;
     this.message = message;
     this.isUser = isUser;
+    this.queries = queries;
   }
 }
 

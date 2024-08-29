@@ -1,40 +1,43 @@
-export function getQueryInstructions(failedQueries: string[]) {
-  return `Your job is to create a SQLite query to answer the question. Use the provided database schema to structure your query. You may only respond with the query as a string. You may only retrieve a maximum of ten rows.
-
-Table Name: Reviews
+const databaseDescription = `Table Name: Reviews
 Fields:
 - name: string. The restaurant's name.
 - cuisine: string. The restaurant's cuisine type, such as 'italian'.
 - rating: number. The restaurant's rating from 0 to 5, integer.
-- review: string. The user's review.
+- review: string. The user's review.`;
+
+export function getQueryInstructions() {
+  return `Your job is to create SQLite queries to answer the user's question. Use the provided database schema to structure your queries. You may only respond with queries as a string. You may only retrieve a maximum of ten rows per query. Each query should end with a semicolon.
+
+${databaseDescription}
 
 Examples:
 To find the average rating for Italian restaurants:
-SELECT AVG(rating) FROM RestaurantReviews WHERE cuisine = 'italian';
+SELECT AVG(rating) FROM Reviews WHERE cuisine = 'italian';
 
 To summarize the reviews for a specific restaurant:
-SELECT review FROM RestaurantReviews WHERE name = 'The Best Italian Restaurant';
-${failedQueries.length > 0 ? `\nQueries you generated that did not work: ${failedQueries.join("\n ")}` : ""}
-  `;
+SELECT review FROM Reviews WHERE name = 'The Best Italian Restaurant';
+  `.trim();
 }
 
-export function getResponseInstructions(query: string, queryResponse: string) {
+export function getFixQueryInstructions(failedQueries: string[]) {
+  return `Your job is to fix SQLite queries to answer the user's question. Use the provided database schema to structure your queries. You may only respond with queries as a string. You may only retrieve a maximum of ten rows per query. Each query should end with a semicolon.
+
+${databaseDescription}
+
+${failedQueries.length > 0 ? `Failed Queries you need to fix:\n${failedQueries.join("\n ")}` : ""}
+`.trim();
+}
+
+export function getResponseInstructions(queryResponses: { success: Record<string, Record<string, any>[]>; fail: string[] }) {
   return `You are a helpful assistant that helps a user find a great restaurant. The restaurants' information is kept in a database with this sql schema:
 
-Table Name: Reviews
-Fields:
-- name: string. The restaurant's name.
-- cuisine: string. The restaurant's cuisine type, such as 'italian'.
-- rating: number. The restaurant's rating from 0 to 5, integer.
-- review: string. The user's review.
+${databaseDescription}
 
-This query returns the necessary information:
-${query}
-This is the query's response:
-${queryResponse}
+These are some relevant queries and their responses:
+${JSON.stringify(queryResponses, null, 2)}
 
 Do not mention the existence of a database or SQL queries in your response.
-`;
+`.trim();
 }
 
 export const initDatabaseCommand = `

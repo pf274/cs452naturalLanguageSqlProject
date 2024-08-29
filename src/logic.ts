@@ -3,7 +3,7 @@ import OpenAI from "openai";
 import initSqlJs, { Database } from "sql.js";
 import sqliteUrl from "./assets/sql-wasm.wasm?url";
 import { ChatMessage } from "./ChatMessage";
-import { getQueryInstructions, getResponseInstructions, initDatabaseCommand } from "./instructions";
+import { getFixQueryInstructions, getQueryInstructions, getResponseInstructions, initDatabaseCommand } from "./instructions";
 
 class DBState {
   static initialized = false;
@@ -11,7 +11,6 @@ class DBState {
 }
 
 async function initDatabase() {
-  debugger;
   DBState.initialized = true;
   const SQL = await initSqlJs({
     locateFile: () => sqliteUrl,
@@ -46,21 +45,23 @@ export async function isValidApiKey(apiKey: string): Promise<void | string> {
   }
 }
 
-export async function getQuery(apiKey: string, prompt: string, failedQueries: string[], history: ChatMessage[]): Promise<string> {
+async function generateQueries(apiKey: string, prompt: string, history: ChatMessage[]): Promise<string[]> {
   try {
     const openai = new OpenAI({ apiKey, dangerouslyAllowBrowser: true });
     const historyMessages = history
       .map((chatMessage) => ({
         role: chatMessage.isUser ? "user" : "assistant",
-        content: chatMessage.message,
+        content: chatMessage.isUser ? chatMessage.message : chatMessage.queries.join(" "),
       }))
       .slice(0, 10) as any;
+    const instructions = getQueryInstructions();
+    console.log(instructions);
     const response = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [
         {
           role: "system",
-          content: getQueryInstructions(failedQueries),
+          content: instructions,
         },
         ...historyMessages,
         {
@@ -70,15 +71,84 @@ export async function getQuery(apiKey: string, prompt: string, failedQueries: st
       ],
     });
     if (response?.choices && response.choices.length > 0 && response.choices[0].message?.content) {
-      return response.choices[0].message.content;
+      const generatedQueries = response.choices[0].message.content;
+      return generatedQueries
+        .split(";")
+        .map((entry) => entry.replace(/\n/g, " ").trim())
+        .filter((entry) => entry.length > 0)
+        .map((entry) => `${entry};`);
     }
     throw new Error("failed to generate sql query");
   } catch (err) {
-    return `ERROR: ${err}`;
+    throw new Error("failed to generate sql query");
   }
 }
 
-export async function getResponse(apiKey: string, prompt: string, query: string, queryResponse: string, history: ChatMessage[]): Promise<string> {
+async function fixQueries(apiKey: string, prompt: string, failedQueries: string[]) {
+  try {
+    const openai = new OpenAI({ apiKey, dangerouslyAllowBrowser: true });
+    const instructions = getFixQueryInstructions(failedQueries);
+    console.log(instructions);
+    const response = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [
+        {
+          role: "system",
+          content: instructions,
+        },
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+    });
+    if (response?.choices && response.choices.length > 0 && response.choices[0].message?.content) {
+      const generatedQueries = response.choices[0].message.content;
+      return generatedQueries
+        .split(";")
+        .map((entry) => entry.replace(/\n/g, " ").trim())
+        .filter((entry) => entry.length > 0)
+        .map((entry) => `${entry};`);
+    }
+    throw new Error("failed to fix sql queries");
+  } catch (err) {
+    throw new Error("failed to fix sql queries");
+  }
+}
+
+export async function getQueries(apiKey: string, prompt: string, history: ChatMessage[]): Promise<string[]> {
+  const acceptedQueries: string[] = [];
+  let generatedQueries: string[] = [];
+  let failedQueries: string[] = [];
+  let attempts = 0;
+  do {
+    failedQueries = [];
+    if (generatedQueries.length == 0) {
+      generatedQueries = await generateQueries(apiKey, prompt, history);
+    }
+    for (const query of generatedQueries) {
+      const valid = validateQuery(query);
+      if (valid) {
+        acceptedQueries.push(query);
+        console.log(`Accepted query: ${query}`);
+      } else {
+        failedQueries.push(query);
+      }
+    }
+    if (failedQueries.length > 0) {
+      generatedQueries = await fixQueries(apiKey, prompt, failedQueries);
+    }
+    attempts++;
+  } while (failedQueries.length != 0 && attempts < 3);
+  return acceptedQueries;
+}
+
+export async function getResponse(
+  apiKey: string,
+  prompt: string,
+  queryResponses: { success: Record<string, Record<string, any>[]>; fail: string[] },
+  history: ChatMessage[]
+): Promise<string> {
   try {
     const openai = new OpenAI({ apiKey, dangerouslyAllowBrowser: true });
     const historyMessages = history
@@ -87,12 +157,14 @@ export async function getResponse(apiKey: string, prompt: string, query: string,
         content: chatMessage.message,
       }))
       .slice(0, 10) as any;
+    const instructions = getResponseInstructions(queryResponses);
+    console.log(instructions);
     const response = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [
         {
           role: "system",
-          content: getResponseInstructions(query, queryResponse),
+          content: instructions,
         },
         ...historyMessages,
         {
@@ -110,7 +182,7 @@ export async function getResponse(apiKey: string, prompt: string, query: string,
   }
 }
 
-export async function validateQuery(query: string) {
+function validateQuery(query: string) {
   try {
     const parser = new Parser();
     parser.astify(query);
@@ -121,12 +193,37 @@ export async function validateQuery(query: string) {
   }
 }
 
-export async function runQuery(query: string) {
-  try {
-    // run the query with sqlite
-    const result = DBState.instance!.exec(query);
-    return JSON.stringify(result);
-  } catch (err) {
-    throw new Error(`Error running query: ${query}`);
+function formatQueryResponse(response: initSqlJs.QueryExecResult[]) {
+  const rows: Record<string, any>[] = [];
+  if (response.length != 1) {
+    throw new Error("Expected query response to be an array with one entry.");
   }
+  const columns = response[0].columns;
+  for (const row of response[0].values) {
+    const convertedRow: Record<string, any> = {};
+    row.forEach((value, index) => {
+      convertedRow[columns[index]] = value;
+    });
+    rows.push(convertedRow);
+  }
+  return rows;
+}
+
+export async function runQueries(queries: string[]): Promise<{ success: Record<string, Record<string, any>[]>; fail: string[] }> {
+  const success: Record<string, Record<string, any>[]> = {};
+  const fail: string[] = [];
+  const response = { success, fail };
+  for (const query of queries) {
+    try {
+      // run the query with sqlite
+      const result = DBState.instance!.exec(query);
+      const formattedResponse = formatQueryResponse(result);
+      response.success[query] = formattedResponse;
+      console.log(`${query}\n Returned: ${JSON.stringify(formattedResponse, null, 2)}`);
+    } catch (err) {
+      console.log(`Error running query: ${query}`);
+      response.fail.push(query);
+    }
+  }
+  return response;
 }
