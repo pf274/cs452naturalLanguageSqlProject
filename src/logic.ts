@@ -2,8 +2,9 @@ import { Parser } from "node-sql-parser";
 import OpenAI from "openai";
 import initSqlJs, { Database } from "sql.js";
 import sqliteUrl from "./assets/sql-wasm.wasm?url";
+import databaseInfo from "./assets/databaseInfo.sqlite?raw";
 import { ChatMessage } from "./ChatMessage";
-import { getFixQueryInstructions, getQueryInstructions, getResponseInstructions, initDatabaseCommand } from "./instructions";
+import { getFixQueryInstructions, getQueryInstructions, getResponseInstructions } from "./instructions";
 
 class DBState {
   static initialized = false;
@@ -18,7 +19,7 @@ async function initDatabase() {
 
   DBState.instance = new SQL.Database();
 
-  const response = DBState.instance.exec(initDatabaseCommand);
+  const response = DBState.instance.exec(databaseInfo);
   console.log("Database initialized with response:", response);
   DBState.initialized = true;
 }
