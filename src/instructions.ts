@@ -57,5 +57,6 @@ ${JSON.stringify(queryResponses, null, 2)}
 
 Do not mention the existence of a database or SQL queries in your response.
 If looking at multiple reviews, summarize what they say to be concise in your response.
+If you don't have enough information from the database queries, don't make stuff up. Just say you don't know.
 `.trim();
 }
