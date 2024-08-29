@@ -177,6 +177,6 @@ export async function runQuery(query: string) {
     const result = DBState.instance!.exec(query);
     return JSON.stringify(result);
   } catch (err) {
-    throw new Error(`Error running query: ${err}`);
+    throw new Error(`Error running query: ${query}`);
   }
 }
