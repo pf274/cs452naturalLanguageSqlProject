@@ -67,7 +67,7 @@ function App() {
       if (queryResponse && !response) {
         response = await getResponse(apiKey, prompt, query, queryResponse, chatMessages);
       }
-      const assistantsChatMessage = new ChatMessage(new Date(), response, false);
+      const assistantsChatMessage = new ChatMessage(new Date(), response!, false);
       setChatMessages((prev) => [...prev, assistantsChatMessage]);
     } catch (err) {
       setSnackError((err as Error).message);
