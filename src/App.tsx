@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import { Button, CircularProgress, Snackbar, TextField, ThemeProvider, Typography, createTheme } from "@mui/material";
 import { Search, Send } from "@mui/icons-material";
@@ -19,6 +19,12 @@ function App() {
   const [errorShown, setErrorShown] = useState<boolean>(false);
   const [snackError, setSnackError] = useState<string>("");
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [update, setUpdate] = useState(0);
+
+  useEffect(() => {
+    const updateInterval = setInterval(() => setUpdate((prev) => prev + 1), 1000 * 1);
+    return () => clearInterval(updateInterval);
+  }, []);
 
   async function verifyKey() {
     setLoading(true);
@@ -83,9 +89,16 @@ function App() {
           <Typography variant="h3">Restaurant AI</Typography>
           <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "flex-end", overflow: "auto" }}>
             {chatMessages.map((chatMessage, index) => (
-              <ChatMessageComponent key={index} date={chatMessage.date} message={chatMessage.message} isUser={chatMessage.isUser} loading={false} />
+              <ChatMessageComponent
+                key={index}
+                date={chatMessage.date}
+                message={chatMessage.message}
+                isUser={chatMessage.isUser}
+                loading={false}
+                update={update}
+              />
             ))}
-            {loading && keyVerified && <ChatMessageComponent date={new Date()} message="Thinking..." isUser={false} loading={true} />}
+            {loading && keyVerified && <ChatMessageComponent date={new Date()} message="Thinking..." isUser={false} loading={true} update={update} />}
           </div>
           {!keyVerified && (
             <form

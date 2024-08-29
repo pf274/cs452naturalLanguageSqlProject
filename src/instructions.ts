@@ -11,7 +11,7 @@ CREATE TABLE Reviews (
   restaurantId INTEGER,
   rating INTEGER,
   review TEXT COLLATE NOCASE,
-  reviewee varchar(255) COLLATE NOCASE,
+  reviewer varchar(255) COLLATE NOCASE,
   FOREIGN KEY(restaurantId) REFERENCES Restaurants(id)
 );`;
 
@@ -29,6 +29,8 @@ SELECT review FROM Reviews WHERE name = 'The Best Italian Restaurant';
 
 To count the total number of restaurants:
 SELECT COUNT(DISTINCT names) FROM Reviews;
+
+Don't use the word 'the' in restaurant names.
 `.trim();
 }
 
@@ -50,5 +52,6 @@ These are some relevant queries and their responses:
 ${JSON.stringify(queryResponses, null, 2)}
 
 Do not mention the existence of a database or SQL queries in your response.
+If looking at multiple reviews, summarize what they say to be concise in your response.
 `.trim();
 }

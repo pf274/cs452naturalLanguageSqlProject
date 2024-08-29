@@ -18,6 +18,7 @@ interface ChatMessageProps {
   message: string;
   isUser: boolean;
   loading: boolean;
+  update: number;
 }
 
 function BouncingLoader() {
@@ -30,10 +31,19 @@ function BouncingLoader() {
   );
 }
 
-export function ChatMessageComponent({ loading, date, message, isUser }: ChatMessageProps) {
+export function ChatMessageComponent({ loading, date, message, isUser, update }: ChatMessageProps) {
   function isJustNow() {
     const now = new Date();
-    return now.getTime() - date.getTime() < 1000 * 60;
+    return now.getTime() - date.getTime() < 1000 * 5;
+  }
+  function howLongAgo() {
+    const now = new Date();
+    const secondsElapsed = Math.floor((now.getTime() - date.getTime()) / 1000);
+    if (secondsElapsed < 60) {
+      return `${secondsElapsed} seconds`;
+    } else {
+      return `${Math.floor(secondsElapsed / 60)} minutes`;
+    }
   }
   return (
     <div
@@ -63,7 +73,7 @@ export function ChatMessageComponent({ loading, date, message, isUser }: ChatMes
           <Typography style={{ textAlign: "left" }} dangerouslySetInnerHTML={{ __html: message.replace(/\n/g, "<br />") }} />
         )}
       </div>
-      {!loading && <Typography variant="caption">{isJustNow() ? "Just Now" : date.toLocaleTimeString()}</Typography>}
+      {!loading && <Typography variant="caption">{update > 0 && isJustNow() ? "Just Now" : howLongAgo()}</Typography>}
     </div>
   );
 }
