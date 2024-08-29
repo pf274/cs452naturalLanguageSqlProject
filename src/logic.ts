@@ -52,7 +52,11 @@ async function generateQueries(apiKey: string, prompt: string, history: ChatMess
     const historyMessages = history
       .map((chatMessage) => ({
         role: chatMessage.isUser ? "user" : "assistant",
-        content: chatMessage.isUser ? chatMessage.message : chatMessage.queries.join(" "),
+        content: chatMessage.isUser
+          ? chatMessage.message
+          : chatMessage.queries.length > 0
+          ? chatMessage.queries.join(" ")
+          : `Another ai agent responded (NOT YOU): ${chatMessage.message}`,
       }))
       .slice(0, 10) as any;
     const instructions = getQueryInstructions();

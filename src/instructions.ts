@@ -7,36 +7,34 @@ CREATE TABLE Restaurants (
 
 CREATE TABLE Reviews (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  restaurantId INTEGER,
+  restaurantName varchar(244) COLLATE NOCASE,
   rating INTEGER,
   review TEXT COLLATE NOCASE,
   reviewer varchar(255) COLLATE NOCASE,
-  FOREIGN KEY(restaurantId) REFERENCES Restaurants(id)
+  FOREIGN KEY(restaurantName) REFERENCES Restaurants(restaurantName)
 );`;
 
 export function getQueryInstructions() {
-  return `Your job is to create SQLite queries to answer the user's question. Use the provided database schema to structure your queries. You may only respond with queries as a string. You may only retrieve a maximum of ten rows per query. Each query should end with a semicolon.
-
+  return `Your job is to create SQLite queries to answer the user's question in context of the conversation. Use the provided database schema to structure your queries. You may only respond with queries as a string. You may only retrieve a maximum of ten rows per query. Each query should end with a semicolon AND SHOULD RETURN ALL FIELDS.
 ${databaseDescription}
 
-Examples:
-To find the average rating for Italian restaurants:
-SELECT AVG(rating) FROM Reviews WHERE review LIKE '%italian%';
+To find the average rating for a restaurant (Example):
+SELECT overallRating FROM Restaurants WHERE restaurantName="Taco Bell"
 
-To summarize the reviews for a specific restaurant:
-SELECT review FROM Reviews WHERE name = 'The Best Italian Restaurant';
+To summarize the reviews for a specific restaurant (Example):
+SELECT * FROM Reviews WHERE restaurantName="Old Spaghetti Factory";
 
 To count the total number of restaurants:
 SELECT COUNT(DISTINCT names) FROM Reviews;
 
-To find out which restaurants serve noodles: (searching the 'review' field specifically)
-SELECT DISTINCT r.restaurantName FROM Restaurants r JOIN Reviews rv ON r.id = rv.restaurantId WHERE rv.review LIKE '%noodle%';
+To find out which restaurants serve noodles (Example) (searching the 'review' field specifically):
+SELECT DISTINCT restaurantName FROM Reviews WHERE review LIKE '%noodle%';
 
-To find out what a restaurant sells:
-SELECT review FROM Reviews rv JOIN Restaurants r ON r.id = rv.restaurantID where r.restaurantName = "Taco Bell";
+To find out what a restaurant sells (Example):
+SELECT * FROM Reviews where restaurantName="In N Out";
 
-To find out what people have said about the salad at a restaurant:
-SELECT rv.review FROM Reviews rv JOIN Restaurants r ON r.id = rv.restaurantId WHERE rv.review LIKE '%salad%' AND r.restaurantName = "Taco Bell";
+To find out what people have said about the salad at a restaurant (Example):
+SELECT * FROM Reviews WHERE review LIKE '%salad%' AND restaurantName="Subway";
 `.trim();
 }
 
@@ -50,7 +48,7 @@ ${failedQueries.length > 0 ? `Failed Queries you need to fix:\n${failedQueries.j
 }
 
 export function getResponseInstructions(queryResponses: { success: Record<string, Record<string, any>[]>; fail: string[] }) {
-  return `You are a helpful assistant that helps a user find a great restaurant. The restaurants' information is kept in a database with this sql schema:
+  return `You are a helpful assistant that helps a user find a great restaurant by answering their questions in context of the conversation. The restaurants' information is kept in a database with this sql schema:
 
 ${databaseDescription}
 
