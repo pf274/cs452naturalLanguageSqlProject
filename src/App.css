@@ -3,7 +3,7 @@
   padding: 0rem;
   text-align: center;
   width: 100vw;
-  max-height: 100vh;
+  height: 100vh;
 }
 
 .bouncing-loader {

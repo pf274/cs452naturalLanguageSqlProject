@@ -69,7 +69,7 @@ function App() {
       <div
         style={{
           display: "flex",
-          height: "100%",
+          height: "100vh",
           flexDirection: "column",
           justifyContent: "flex-start",
           alignItems: "center",
@@ -77,17 +77,18 @@ function App() {
       >
         <div
           style={{
-            padding: "3em",
-            maxWidth: "800px",
-            flex: 1,
+            padding: "1.5em",
+            width: "calc(100vw - 3em)",
+            height: "calc(100vh - 3em)",
             display: "flex",
             flexDirection: "column",
             gap: "1em",
             backgroundColor: "#181818",
           }}
         >
-          <Typography variant="h3">Restaurant AI</Typography>
-          <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "flex-end", overflow: "auto" }}>
+          <Typography variant="h4">Restaurant AI</Typography>
+          <div style={{ flex: 1 }} />
+          <div id="scrollableMessages" style={{ display: "block", flexDirection: "column", justifyContent: "flex-end", overflow: "auto" }}>
             {chatMessages.map((chatMessage, index) => (
               <ChatMessageComponent
                 key={index}
