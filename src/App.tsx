@@ -19,6 +19,7 @@ function App() {
   const [errorShown, setErrorShown] = useState<boolean>(false);
   const [snackError, setSnackError] = useState<string>("");
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [queries, setQueries] = useState<ChatMessage[]>([]);
 
   async function verifyKey() {
     setLoading(true);
@@ -45,12 +46,13 @@ function App() {
     try {
       const usersChatMessage = new ChatMessage(new Date(), prompt, true);
       setChatMessages((prev) => [...prev, usersChatMessage]);
+      setQueries((prev) => [...prev, usersChatMessage]);
       const failedQueries = [];
       let attempts = 0;
       let valid;
       let query;
       do {
-        query = await getQuery(apiKey, prompt, failedQueries, chatMessages);
+        query = await getQuery(apiKey, prompt, failedQueries, queries);
         valid = await validateQuery(query);
         if (!valid) {
           failedQueries.push(query);
@@ -61,6 +63,7 @@ function App() {
       let response;
       try {
         queryResponse = await runQuery(query);
+        setQueries((prev) => [...prev, new ChatMessage(new Date(), query, false)]);
     	} catch (error) {
 				response = `I failed to run this query: ${query}`;
       }
