@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import { Button, CircularProgress, Snackbar, TextField, ThemeProvider, Typography, createTheme } from "@mui/material";
 import { Search, Send } from "@mui/icons-material";
@@ -20,11 +20,18 @@ function App() {
   const [snackError, setSnackError] = useState<string>("");
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [update, setUpdate] = useState(0);
+  const messagesEndRef = useRef<any>(null);
 
   useEffect(() => {
     const updateInterval = setInterval(() => setUpdate((prev) => prev + 1), 1000 * 1);
     return () => clearInterval(updateInterval);
   }, []);
+
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [chatMessages, loading]);
 
   async function verifyKey() {
     setLoading(true);
@@ -100,6 +107,7 @@ function App() {
               />
             ))}
             {loading && keyVerified && <ChatMessageComponent date={new Date()} message="Thinking..." isUser={false} loading={true} update={update} />}
+            <div ref={messagesEndRef} />
           </div>
           {!keyVerified && (
             <form

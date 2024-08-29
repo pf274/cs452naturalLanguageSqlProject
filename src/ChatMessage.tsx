@@ -70,7 +70,7 @@ export function ChatMessageComponent({ loading, date, message, isUser, update }:
         {loading ? (
           <BouncingLoader />
         ) : (
-          <Typography style={{ textAlign: "left" }} dangerouslySetInnerHTML={{ __html: message.replace(/\n/g, "<br />") }} />
+          <Typography style={{ textAlign: "left", textWrap: "balance" }} dangerouslySetInnerHTML={{ __html: message.replace(/\n/g, "<br />") }} />
         )}
       </div>
       {!loading && <Typography variant="caption">{update > 0 && isJustNow() ? "Just Now" : howLongAgo()}</Typography>}
