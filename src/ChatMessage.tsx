@@ -78,3 +78,32 @@ export function ChatMessageComponent({ loading, date, message, isUser, update }:
     </div>
   );
 }
+
+export function LoadingMessage() {
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "flex-start",
+        padding: "0.5em",
+        gap: "0.25em",
+      }}
+    >
+      <div
+        style={{
+          padding: "0.75em",
+          borderRadius: "1em",
+          borderBottomLeftRadius: "0",
+          borderBottomRightRadius: "1em",
+          background: "linear-gradient(to bottom, #2196F3, #3F51B5)",
+          color: "white",
+          maxWidth: "50%",
+          textWrap: "balance",
+        }}
+      >
+        <BouncingLoader />
+      </div>
+    </div>
+  );
+}

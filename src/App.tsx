@@ -3,7 +3,7 @@ import "./App.css";
 import { Button, CircularProgress, Snackbar, TextField, ThemeProvider, Typography, createTheme } from "@mui/material";
 import { Search, Send } from "@mui/icons-material";
 import { isValidApiKey, getResponse, getQueries, runQueries } from "./logic";
-import { ChatMessage, ChatMessageComponent } from "./ChatMessage";
+import { ChatMessage, ChatMessageComponent, LoadingMessage } from "./ChatMessage";
 
 function formatChatMessages() {
   const chatMessages = [...document.querySelectorAll(".chatMessage")] as HTMLElement[];
@@ -14,6 +14,9 @@ function formatChatMessages() {
   for (const message of chatMessages) {
     width = message.offsetWidth;
     height = message.offsetHeight;
+    if (height < 50) {
+      continue;
+    }
 
     for (w = width; w; w--) {
       message.style.width = w + "px";
@@ -136,7 +139,7 @@ function App() {
                 update={update}
               />
             ))}
-            {loading && keyVerified && <ChatMessageComponent date={new Date()} message="Thinking..." isUser={false} loading={true} update={update} />}
+            {loading && keyVerified && <LoadingMessage />}
             <div ref={messagesEndRef} />
           </div>
           {!keyVerified && (

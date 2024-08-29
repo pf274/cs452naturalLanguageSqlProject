@@ -31,6 +31,12 @@ SELECT COUNT(DISTINCT names) FROM Reviews;
 
 To find out which restaurants serve noodles: (searching the 'review' field specifically)
 SELECT DISTINCT r.restaurantName FROM Restaurants r JOIN Reviews rv ON r.id = rv.restaurantId WHERE rv.review LIKE '%noodle%';
+
+To find out what a restaurant sells:
+SELECT review FROM Reviews rv JOIN Restaurants r ON r.id = rv.restaurantID where r.restaurantName = "Taco Bell";
+
+To find out what people have said about the salad at a restaurant:
+SELECT rv.review FROM Reviews rv JOIN Restaurants r ON r.id = rv.restaurantId WHERE rv.review LIKE '%salad%' AND r.restaurantName = "Taco Bell";
 `.trim();
 }
 
