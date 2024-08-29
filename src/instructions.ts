@@ -29,8 +29,6 @@ SELECT review FROM Reviews WHERE name = 'The Best Italian Restaurant';
 
 To count the total number of restaurants:
 SELECT COUNT(DISTINCT names) FROM Reviews;
-
-Don't use the word 'the' in restaurant names.
 `.trim();
 }
 

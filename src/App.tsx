@@ -5,6 +5,29 @@ import { Search, Send } from "@mui/icons-material";
 import { isValidApiKey, getResponse, getQueries, runQueries } from "./logic";
 import { ChatMessage, ChatMessageComponent } from "./ChatMessage";
 
+function formatChatMessages() {
+  const chatMessages = [...document.querySelectorAll(".chatMessage")] as HTMLElement[];
+  let w: number;
+  let width: number;
+  let height: number;
+
+  for (const message of chatMessages) {
+    width = message.offsetWidth;
+    height = message.offsetHeight;
+
+    for (w = width; w; w--) {
+      message.style.width = w + "px";
+      if (message.offsetHeight !== height) break;
+    }
+
+    if (w < message.scrollWidth) {
+      message.style.width = message.style.maxWidth = `${message.scrollWidth}px`;
+    } else {
+      message.style.width = `${w + 1}px`;
+    }
+  }
+}
+
 const darkTheme = createTheme({
   palette: {
     mode: "dark",
@@ -24,10 +47,15 @@ function App() {
 
   useEffect(() => {
     const updateInterval = setInterval(() => setUpdate((prev) => prev + 1), 1000 * 1);
-    return () => clearInterval(updateInterval);
+    window.addEventListener("resize", formatChatMessages);
+    return () => {
+      clearInterval(updateInterval);
+      window.removeEventListener("resize", formatChatMessages);
+    };
   }, []);
 
   useEffect(() => {
+    formatChatMessages();
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
@@ -40,16 +68,18 @@ function App() {
       setSnackError(error);
       setErrorShown(true);
       setKeyVerified(false);
-    } else {
+      return;
+    }
+    setTimeout(() => {
       const introductionMessage = new ChatMessage(
         new Date(),
         "Hello! I'm here to help you find a great restaurant. What would you like to know?",
         false
       );
       setChatMessages((prev) => [...prev, introductionMessage]);
-      setKeyVerified(true);
-    }
-    setLoading(false);
+      setLoading(false);
+    }, 1000);
+    setKeyVerified(true);
   }
 
   async function submitPrompt() {

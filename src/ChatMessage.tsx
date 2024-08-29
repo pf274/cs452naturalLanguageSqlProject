@@ -61,16 +61,17 @@ export function ChatMessageComponent({ loading, date, message, isUser, update }:
           borderRadius: "1em",
           borderBottomLeftRadius: isUser ? "1em" : "0",
           borderBottomRightRadius: isUser ? "0" : "1em",
-          backgroundColor: isUser ? "#4CAF50" : "#2196F3",
+          background: isUser ? "linear-gradient(to bottom, #8BC34A, #4CAF50)" : "linear-gradient(to bottom, #2196F3, #3F51B5)",
           color: "white",
           maxWidth: "50%",
-          wordWrap: "break-word",
+          textWrap: "balance",
         }}
+        className="chatMessage"
       >
         {loading ? (
           <BouncingLoader />
         ) : (
-          <Typography style={{ textAlign: "left", textWrap: "balance" }} dangerouslySetInnerHTML={{ __html: message.replace(/\n/g, "<br />") }} />
+          <Typography style={{ textAlign: "left" }} dangerouslySetInnerHTML={{ __html: message.replace(/\n/g, "<br />") }} />
         )}
       </div>
       {!loading && <Typography variant="caption">{update > 0 && isJustNow() ? "Just Now" : howLongAgo()}</Typography>}

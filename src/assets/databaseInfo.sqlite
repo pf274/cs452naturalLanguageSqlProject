@@ -220,4 +220,4 @@ VALUES
   (34, 5, 'A delicious and innovative dining experience with a variety of vegan dishes. The food is flavorful and creative, and the atmosphere is casual and relaxed.', 'Arlene Hawkins'),
   (35, 5, 'A fresh and flavorful dining experience with a variety of Vietnamese dishes. The food is delicious, and the atmosphere is casual and relaxed.', 'Janet Gibbs');
 
-SELECT * FROM Reviews;
+SELECT * FROM Restaurants;
