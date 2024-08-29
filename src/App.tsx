@@ -57,8 +57,16 @@ function App() {
           attempts++;
         }
       } while (!valid && attempts < 3);
-      const queryResponse = await runQuery(query);
-      const response = await getResponse(apiKey, prompt, query, queryResponse, chatMessages);
+      let queryResponse;
+      let response;
+      try {
+        queryResponse = await runQuery(query);
+    	} catch (error) {
+				response = `I failed to run this query: ${query}`;
+      }
+      if (queryResponse && !response) {
+        response = await getResponse(apiKey, prompt, query, queryResponse, chatMessages);
+      }
       const assistantsChatMessage = new ChatMessage(new Date(), response, false);
       setChatMessages((prev) => [...prev, assistantsChatMessage]);
     } catch (err) {
