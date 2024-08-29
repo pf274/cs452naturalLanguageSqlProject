@@ -50,7 +50,7 @@ function App() {
       const failedQueries = [];
       let attempts = 0;
       let valid;
-      let query;
+      let query: string;
       do {
         query = await getQuery(apiKey, prompt, failedQueries, queries);
         valid = await validateQuery(query);
@@ -64,8 +64,8 @@ function App() {
       try {
         queryResponse = await runQuery(query);
         setQueries((prev) => [...prev, new ChatMessage(new Date(), query, false)]);
-    	} catch (error) {
-				response = `I failed to run this query: ${query}`;
+      } catch (error) {
+        response = `I failed to run this query: ${query}`;
       }
       if (queryResponse && !response) {
         response = await getResponse(apiKey, prompt, query, queryResponse, chatMessages);
