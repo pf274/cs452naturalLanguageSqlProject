@@ -101,7 +101,7 @@ function App() {
             <form
               onSubmit={(e) => {
                 e.preventDefault(); // Prevent the default form submission action
-                submitPrompt();
+                verifyKey();
               }}
             >
               <div style={{ display: "flex", flexDirection: "row", flexWrap: "nowrap", gap: "1em" }}>
