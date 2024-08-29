@@ -5,5 +5,5 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   plugins: [react()],
   assetsInclude: ["src/**/*.wasm"],
-  base: "cs452naturallanguagesqlproject",
+  base: "cs452naturalLanguageSqlProject",
 });

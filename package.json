@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://pf274.github.io/cs452naturallanguagesqlproject",
+  "homepage": "https://pf274.github.io/cs452naturalLanguageSqlProject",
   "scripts": {
     "start": "vite",
     "build": "tsc -b && vite build",
