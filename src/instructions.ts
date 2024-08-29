@@ -1,8 +1,7 @@
 const databaseDescription = `Database:
 CREATE TABLE Restaurants (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  restaurantName varchar(255) COLLATE NOCASE, 
-  cuisine varchar(255) COLLATE NOCASE, 
+  restaurantName varchar(255) COLLATE NOCASE,
   overallRating REAL
 );
 
@@ -22,13 +21,16 @@ ${databaseDescription}
 
 Examples:
 To find the average rating for Italian restaurants:
-SELECT AVG(rating) FROM Reviews WHERE cuisine = 'italian';
+SELECT AVG(rating) FROM Reviews WHERE review LIKE '%italian%';
 
 To summarize the reviews for a specific restaurant:
 SELECT review FROM Reviews WHERE name = 'The Best Italian Restaurant';
 
 To count the total number of restaurants:
 SELECT COUNT(DISTINCT names) FROM Reviews;
+
+To find out which restaurants serve noodles: (searching the 'review' field specifically)
+SELECT DISTINCT r.restaurantName FROM Restaurants r JOIN Reviews rv ON r.id = rv.restaurantId WHERE rv.review LIKE '%noodle%';
 `.trim();
 }
 
