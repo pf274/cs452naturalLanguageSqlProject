@@ -58,7 +58,7 @@ async function generateQueries(apiKey: string, prompt: string, history: ChatMess
           ? chatMessage.queries.join(" ")
           : `Another ai agent responded (NOT YOU): ${chatMessage.message}`,
       }))
-      .slice(0, 10) as any;
+      .slice(-5) as any;
     const instructions = getQueryInstructions();
     console.log(instructions);
     const response = await openai.chat.completions.create({
@@ -161,7 +161,7 @@ export async function getResponse(
         role: chatMessage.isUser ? "user" : "assistant",
         content: chatMessage.message,
       }))
-      .slice(0, 10) as any;
+      .slice(-5) as any;
     const instructions = getResponseInstructions(queryResponses);
     console.log(instructions);
     const response = await openai.chat.completions.create({

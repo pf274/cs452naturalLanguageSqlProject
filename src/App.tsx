@@ -89,7 +89,7 @@ function App() {
     setLoading(true);
     setPrompt("");
     try {
-      console.log(`------------------\n------------------\n------------------\n${prompt}`);
+      console.log(`------------------\n---New Question---\n------------------\n${prompt}`);
       const usersChatMessage = new ChatMessage(new Date(), prompt, true);
       setChatMessages((prev) => [...prev, usersChatMessage]);
       const queries = await getQueries(apiKey, prompt, chatMessages);
