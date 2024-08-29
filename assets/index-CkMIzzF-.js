@@ -338,7 +338,7 @@ Queries you generated that did not work: ${L.join(`
 Table Name: Reviews
 Fields:
 - name: string. The restaurant's name.
-- cuisine: string. The restaurant's cuisine type, either 'italian', 'mexican', 'american', or 'chinese'.
+- cuisine: string. The restaurant's cuisine type, such as 'italian'.
 - rating: number. The restaurant's rating from 0 to 10, integer.
 - review: string. The user's review.
 
