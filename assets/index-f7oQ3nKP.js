@@ -291,7 +291,7 @@ VALUES
   ('The Steakhouse', 'Steakhouse', 4, 'High-quality steaks, extensive wine list, and a classy atmosphere.');
 
 SELECT * FROM Reviews;
-`);console.log("Database initialized with response:",L),DC.initialized=!0}DC.initialized||GD();async function BD(s){try{if(!s||s.length==0)return"API key is required";const L=await new vv({apiKey:s,dangerouslyAllowBrowser:!0}).models.list();console.log(L);return}catch(a){return(a.code="invalid_api_key")?"Invalid API key":a.error}}async function HD(s,a,L,D){var at;try{const yt=new vv({apiKey:s,dangerouslyAllowBrowser:!0}),e=D.map(Fe=>({role:Fe.isUser?"user":"assistant",content:Fe.message})).slice(0,10),fe=await yt.chat.completions.create({model:"gpt-3.5-turbo",messages:[{role:"system",content:`Your job is to create a SQLite query to answer the question. Use the provided database schema to structure your query. You may only respond with the query as a string.
+`);console.log("Database initialized with response:",L),DC.initialized=!0}DC.initialized||GD();async function BD(s){try{if(!s||s.length==0)return"API key is required";const L=await new vv({apiKey:s,dangerouslyAllowBrowser:!0}).models.list();console.log(L);return}catch(a){return(a.code="invalid_api_key")?"Invalid API key":a.error}}async function HD(s,a,L,D){var at;try{const yt=new vv({apiKey:s,dangerouslyAllowBrowser:!0}),e=D.map(Fe=>({role:Fe.isUser?"user":"assistant",content:Fe.message})).slice(0,10),fe=await yt.chat.completions.create({model:"gpt-3.5-turbo",messages:[{role:"system",content:`Your job is to create a SQLite query to answer the question. Use the provided database schema to structure your query. You may only respond with the query as a string. You may only retrieve a maximum of ten rows.
 
 Table Name: Reviews
 Fields:
