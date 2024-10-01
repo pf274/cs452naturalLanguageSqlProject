@@ -339,4 +339,43 @@ VALUES
   ('Vegan Gourmet', 5, 'A delicious and innovative dining experience with a variety of vegan dishes. The food is flavorful and creative, and the atmosphere is casual and relaxed.', 'Arlene Hawkins'),
   ('Vietnamese Cuisine', 5, 'A fresh and flavorful dining experience with a variety of Vietnamese dishes. The food is delicious, and the atmosphere is casual and relaxed.', 'Janet Gibbs');
 
+INSERT INTO RestaurantContactInfo (restaurantName, phone, address, email, website)
+VALUES
+  ('China Wok', '(874) 742-1228', '1695 Wuig Highway', 'zel@nirtum.kg', 'http://fe.gi/wok'),
+  ('Chinese Garden', '(230) 354-1198', '704 Giuw Ridge', 'zawuto@rajozra.kg', 'http://ilobufcu.com/puktesen'),
+  ('Ethiopian Utopia', '(937) 891-1665', '1589 Sova Terrace', 'tumujleh@ga.je', 'http://fuveffa.bo/povagapet'),
+  ('Farm-to-Table', '(608) 267-5084', '1192 Sicat Ridge', 'jodeapa@ac.ax', 'http://nuv.mn/kakvosaz'),
+  ('Filipino Cafe', '(841) 820-7019', '336 Fiffo Ridge', 'uzuov@zisozik.ky', 'http://uk.kp/bajereifu'),
+  ('Fusion Cuisine', '(835) 982-7516', '617 Fedfi Extension', 'tauda@pame.gf', 'http://gohceka.ec/fiic'),
+  ('Geronimo', '(275) 849-2927', '73 Jibdor Place', 'le@puti.pk', 'http://anuubrog.nf/kowgurmi'),
+  ('Greek Tavern', '(737) 964-5758', '499 Deje Parkway', 'ojupas@jo.at', 'http://el.md/hucid'),
+  ('Tour of India', '(262) 857-7556', '28 Vohkem Mill', 'fes@rekgecsa.ls', 'http://ijilak.mz/ow'),
+  ('Indian Palace', '(246) 938-2626', '58 Kenule Point', 'cebti@jolen.na', 'http://poshe.uk/vif'),
+  ('Korean Barbecue', '(748) 321-7732', '1278 Lugtet View', 'tos@kihbu.us', 'http://sawapve.cx/cocgasku'),
+  ('La Cucina Italiana', '(852) 540-5827', '621 Capzu Avenue', 'honcemuw@op.gl', 'http://irafib.cw/nedirhop'),
+  ('Mexican Grill', '(224) 391-2091', '252 Jehi Boulevard', 'ehnuh@wagta.ni', 'http://jaato.as/ega'),
+  ('Peruvian Cuisine', '(328) 388-4938', '1494 Urovet Glen', 'butzowata@tabunakes.ly', 'http://dam.co/opodok'),
+  ('Pizza Palace', '(655) 750-9068', '1238 Tewziv Ridge', 'hedoh@wa.om', 'http://vauge.ao/cusiraj'),
+  ('Raw Food Restaurant', '(889) 269-8591', '1678 Rowi Key', 'ewegubovu@kanmip.eu', 'http://sudozi.af/cenuk'),
+  ('Sushi Bar', '(813) 598-8693', '1616 Jodef Boulevard', 'to@eceuk.uk', 'http://pempacmud.st/nuvi'),
+  ('Sushi Palace', '(317) 633-6306', '1908 Hutez Highway', 'danfiz@kalilje.uy', 'http://dogewev.fj/revovu'),
+  ('Taco Fiesta', '(537) 895-7466', '798 Fezwez River', 'fe@gorsokju.sv', 'http://age.py/bohkur'),
+  ('Thai Garden', '(511) 766-6081', '1289 Tatof Junction', 'azi@ifoziava.zw', 'http://cipvup.gd/we'),
+  ('Thai Kitchen', '(738) 569-7100', '350 Sapki Glen', 'vigco@vozat.ro', 'http://ciwniji.kp/hodmibdaj'),
+  ('Burger Joint', '(464) 323-8715', '466 Lukpes Circle', 'retig@uhi.ag', 'http://do.gy/wutwimej'),
+  ('Burger Shack', '(670) 665-8806', '1568 Pofe Highway', 'igaki@otjaba.uz', 'http://cid.cz/bopokug'),
+  ('Dark Dining Experience', '(806) 612-5225', '1572 Eliac Pass', 'kasizhin@hozpoj.su', 'http://ribij.bs/wigmosof'),
+  ('Dinner Detective', '(849) 573-7270', '972 Evuva Highway', 'puwwah@edkek.iq', 'http://he.mv/ziivi'),
+  ('French Bistro', '(233) 674-3614', '475 Odican Parkway', 'tozguetu@paandeb.tk', 'http://kozuv.pa/topalep'),
+  ('French Cafe', '(677) 687-4009', '1047 Fewiv Extension', 'pisal@irvujbu.gq', 'http://puit.ps/tufmo'),
+  ('Greek Grill', '(407) 571-4685', '1605 Cebe Heights', 'laj@ivanawur.ss', 'http://vag.mu/zenpa'),
+  ('Robot Restaurant', '(201) 981-6538', '1427 Fodmi Court', 'toicmop@gak.na', 'http://muzfi.li/icba'),
+  ('Steakhouse Grill', '(748) 396-7245', '1549 Atoti Drive', 'ho@ko.eh', 'http://rav.sc/wogdez'),
+  ('Yeehaw Steakhouse', '(629) 239-1947', '1044 Uvoge Manor', 'usonul@ciciga.lc', 'http://waij.pg/wazzabaz'),
+  ('Treehouse Restaurant', '(730) 978-5067', '36 Nutho Center', 'popla@fac.hn', 'http://duzam.sl/tuboili'),
+  ('Underground Supper Club', '(867) 727-7631', '779 Vewjid Parkway', 'vivub@vabdiwiw.ni', 'http://nevzer.do/gufgevzi'),
+  ('Vegan Gourmet', '(200) 787-5831', '1867 Vana Terrace', 'buhuav@bellok.be', 'http://ruzurta.cx/te'),
+  ('Vietnamese Cuisine', '(486) 932-5272', '1596 Caho Pass', 'diwpof@fohepo.fk', 'http://tor.bo/da');
+
+
 SELECT * FROM Restaurants;
