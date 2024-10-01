@@ -12,7 +12,6 @@ class DBState {
 }
 
 async function initDatabase() {
-  DBState.initialized = true;
   const SQL = await initSqlJs({
     locateFile: () => sqliteUrl,
   });
