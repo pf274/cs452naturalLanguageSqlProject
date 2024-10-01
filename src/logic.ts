@@ -83,7 +83,7 @@ async function generateQueries(apiKey: string, prompt: string, history: ChatMess
         .filter((entry) => entry.length > 0)
         .map((entry) => `${entry};`);
     }
-    throw new Error("failed to generate sql query");
+    throw new Error("failed to generate sql query: no responses");
   } catch (err) {
     throw new Error("failed to generate sql query");
   }
@@ -226,8 +226,12 @@ export async function runQueries(queries: string[]): Promise<{ success: Record<s
       response.success[query] = formattedResponse;
       console.log(`${query}\n Returned: ${JSON.stringify(formattedResponse, null, 2)}`);
     } catch (err) {
-      console.log(`Error running query: ${query}`);
-      response.fail.push(query);
+      if ((err as Error).message.includes("to be an array with one entry.")) {
+        response.success[query] = [{ message: "now rows returned" }];
+      } else {
+        console.log(`Error running query: ${query}`);
+        response.fail.push(query);
+      }
     }
   }
   return response;
