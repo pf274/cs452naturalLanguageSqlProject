@@ -1,6 +1,6 @@
 # CS 452 Natural Language SQL Project
 
-(See Website)[https://pf274.github.io/cs452naturalLanguageSqlProject]
+[See Website](https://pf274.github.io/cs452naturalLanguageSqlProject)
 
 ## Summary
 
