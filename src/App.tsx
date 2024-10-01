@@ -95,7 +95,7 @@ function App() {
       const queries = await getQueries(apiKey, prompt, chatMessages);
       const queryResponses = await runQueries(queries);
       const response = await getResponse(apiKey, prompt, queryResponses, chatMessages);
-      const assistantsChatMessage = new ChatMessage(new Date(), response!, false, queries);
+      const assistantsChatMessage = new ChatMessage(new Date(), response!, false, queries, queryResponses);
       setChatMessages((prev) => [...prev, assistantsChatMessage]);
     } catch (err) {
       setSnackError((err as Error).message);
@@ -135,6 +135,7 @@ function App() {
                 date={chatMessage.date}
                 message={chatMessage.message}
                 isUser={chatMessage.isUser}
+                queryResponses={chatMessage.queryResponses}
                 loading={false}
                 update={update}
               />
@@ -152,7 +153,7 @@ function App() {
               <div style={{ display: "flex", flexDirection: "row", flexWrap: "nowrap", gap: "1em" }}>
                 <TextField
                   id="keyInput"
-                  label="API Key"
+                  label="OpenAI API Key"
                   variant="outlined"
                   value={apiKey}
                   onChange={(e) => {

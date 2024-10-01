@@ -1,15 +1,39 @@
-import { Typography } from "@mui/material";
+import { ExpandMore } from "@mui/icons-material";
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Badge,
+  Box,
+  Chip,
+  Dialog,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Divider,
+  Modal,
+  Typography,
+} from "@mui/material";
+import { useState } from "react";
 
 export class ChatMessage {
   public date: Date;
   public message: string;
   public isUser: boolean;
   public queries: string[];
-  constructor(date: Date, message: string, isUser: boolean, queries: string[] = []) {
+  public queryResponses: { success: Record<string, Record<string, any>[]>; fail: string[] };
+  constructor(
+    date: Date,
+    message: string,
+    isUser: boolean,
+    queries: string[] = [],
+    queryResponses: { success: Record<string, Record<string, any>[]>; fail: string[] } = { success: {}, fail: [] }
+  ) {
     this.date = date;
     this.message = message;
     this.isUser = isUser;
     this.queries = queries;
+    this.queryResponses = queryResponses;
   }
 }
 
@@ -19,6 +43,7 @@ interface ChatMessageProps {
   isUser: boolean;
   loading: boolean;
   update: number;
+  queryResponses?: { success: Record<string, Record<string, any>[]>; fail: string[] };
 }
 
 function BouncingLoader() {
@@ -31,7 +56,8 @@ function BouncingLoader() {
   );
 }
 
-export function ChatMessageComponent({ loading, date, message, isUser, update }: ChatMessageProps) {
+export function ChatMessageComponent({ loading, date, message, isUser, update, queryResponses }: ChatMessageProps) {
+  const [open, setOpen] = useState(false);
   function isJustNow() {
     const now = new Date();
     return now.getTime() - date.getTime() < 1000 * 5;
@@ -44,6 +70,9 @@ export function ChatMessageComponent({ loading, date, message, isUser, update }:
     } else {
       return `${Math.floor(secondsElapsed / 60)} minutes`;
     }
+  }
+  function openQueries() {
+    setOpen(true);
   }
   return (
     <div
@@ -65,6 +94,7 @@ export function ChatMessageComponent({ loading, date, message, isUser, update }:
           color: "white",
           maxWidth: "50%",
           textWrap: "balance",
+          position: "relative",
         }}
         className="chatMessage"
       >
@@ -73,6 +103,49 @@ export function ChatMessageComponent({ loading, date, message, isUser, update }:
         ) : (
           <Typography style={{ textAlign: "left" }} dangerouslySetInnerHTML={{ __html: message.replace(/\n/g, "<br />") }} />
         )}
+
+        {!loading && !isUser && queryResponses && Object.keys(queryResponses.success).length + queryResponses.fail.length > 0 && (
+          <Chip
+            sx={{ position: "absolute", top: "-0.5em", left: "-0.5em" }}
+            variant="filled"
+            color="primary"
+            size="small"
+            label={String(Object.keys(queryResponses.success).length + queryResponses.fail.length)}
+            onClick={openQueries}
+          />
+        )}
+        <Dialog open={open} onClose={() => setOpen(false)}>
+          <DialogTitle>Query Responses</DialogTitle>
+          <DialogContent>
+            <Divider />
+            {queryResponses && Object.keys(queryResponses.success).length > 0 && (
+              <div>
+                <DialogContentText>Successful Responses</DialogContentText>
+                {queryResponses &&
+                  Object.keys(queryResponses.success).map((key) => (
+                    <Accordion key={key}>
+                      <AccordionSummary expandIcon={<ExpandMore />}>
+                        <Typography variant="caption">Request: {key}</Typography>
+                      </AccordionSummary>
+                      <AccordionDetails>
+                        <p
+                          style={{ whiteSpace: "pre-wrap" }}
+                          dangerouslySetInnerHTML={{ __html: JSON.stringify(queryResponses.success[key], null, 2) }}
+                        />
+                      </AccordionDetails>
+                    </Accordion>
+                  ))}
+              </div>
+            )}
+            <Divider />
+            {queryResponses && queryResponses.fail.length > 0 && (
+              <div>
+                <DialogContentText>Failed Responses</DialogContentText>
+                {queryResponses && queryResponses.fail.map((key) => <DialogContentText key={key}>{key}</DialogContentText>)}
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
       {!loading && <Typography variant="caption">{update > 0 && isJustNow() ? "Just Now" : howLongAgo()}</Typography>}
     </div>
