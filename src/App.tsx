@@ -44,6 +44,8 @@ function App() {
   const [loading, setLoading] = useState<boolean>(false);
   const [errorShown, setErrorShown] = useState<boolean>(false);
   const [snackError, setSnackError] = useState<string>("");
+  const [snackNotification, setSnackNotification] = useState<string>("");
+  const [notificationShown, setNotificationShown] = useState<boolean>(false);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [update, setUpdate] = useState(0);
   const [waiting, setWaiting] = useState(false);
@@ -115,6 +117,18 @@ function App() {
     setLoading(false);
   }
 
+  function handleCopyChatHistory() {
+    const chatHistory = chatMessages.map((chatMessage) => {
+      if (chatMessage.isUser) {
+        return `User: ${chatMessage.message}`;
+      }
+      return `Assistant: ${chatMessage.message}`;
+    });
+    navigator.clipboard.writeText(chatHistory.join("\n\n"));
+    setSnackNotification("Chat history copied to clipboard");
+    setNotificationShown(true);
+  }
+
   return (
     <ThemeProvider theme={darkTheme}>
       <div
@@ -137,7 +151,14 @@ function App() {
             backgroundColor: "#181818",
           }}
         >
-          <Typography variant="h4">Restaurant AI</Typography>
+          <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap" }}>
+            <Typography variant="h4">Restaurant AI</Typography>
+            {chatMessages.length > 0 && (
+              <Button variant="contained" onClick={handleCopyChatHistory}>
+                Copy Chat History
+              </Button>
+            )}
+          </div>
           <div style={{ flex: 1 }} />
           <div id="scrollableMessages" style={{ display: "block", flexDirection: "column", justifyContent: "flex-end", overflowY: "auto" }}>
             {chatMessages.map((chatMessage, index) => (
@@ -219,6 +240,7 @@ function App() {
               style: { backgroundColor: "red" },
             }}
           />
+          <Snackbar open={notificationShown} autoHideDuration={6000} onClose={() => setNotificationShown(false)} message={snackNotification} />
         </div>
       </div>
     </ThemeProvider>
