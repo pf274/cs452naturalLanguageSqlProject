@@ -5,7 +5,6 @@ import sqliteUrl from "./assets/sql-wasm.wasm?url";
 import databaseInfo from "./assets/databaseInfo.sqlite?raw";
 import { ChatMessage } from "./ChatMessage";
 import { getFixQueryInstructions, getQueryInstructions, getResponseInstructions } from "./instructions";
-
 class DBState {
   static initialized = false;
   static instance: Database | null = null;
@@ -82,9 +81,9 @@ async function generateQueries(apiKey: string, prompt: string, history: ChatMess
         .filter((entry) => entry.length > 0)
         .map((entry) => `${entry};`);
     }
-    throw new Error("failed to generate sql query: no responses");
+    throw new Error("failed to generate sql query: could not parse responses");
   } catch (err) {
-    throw new Error("failed to generate sql query");
+    throw new Error(`failed to generate sql query: ${(err as Error).message}`);
   }
 }
 
@@ -114,9 +113,9 @@ async function fixQueries(apiKey: string, prompt: string, failedQueries: string[
         .filter((entry) => entry.length > 0)
         .map((entry) => `${entry};`);
     }
-    throw new Error("failed to fix sql queries");
+    throw new Error("failed to fix sql queries: could not parse responses");
   } catch (err) {
-    throw new Error("failed to fix sql queries");
+    throw new Error(`failed to fix sql queries: ${(err as Error).message}`);
   }
 }
 
@@ -180,9 +179,9 @@ export async function getResponse(
     if (response?.choices && response.choices.length > 0 && response.choices[0].message?.content) {
       return response.choices[0].message.content;
     }
-    throw new Error("failed to generate response");
+    throw new Error("failed to generate response: could not parse response");
   } catch (err) {
-    return `ERROR: ${err}`;
+    return `failed to generate response: ${(err as Error).message}`;
   }
 }
 
