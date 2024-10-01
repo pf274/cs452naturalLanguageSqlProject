@@ -87,6 +87,9 @@ function App() {
   }
 
   async function submitPrompt() {
+    if (loading || waiting) {
+      return;
+    }
     setWaiting(true);
     const waitPromise = new Promise((resolve) =>
       setTimeout(() => {
@@ -197,8 +200,8 @@ function App() {
                 />
                 <Button
                   variant="contained"
-                  disabled={loading}
-                  endIcon={loading ? <CircularProgress size="1em" /> : <Send />}
+                  disabled={loading || waiting}
+                  endIcon={loading || waiting ? <CircularProgress size="1em" /> : <Send />}
                   onClick={submitPrompt}
                   onSubmit={submitPrompt}
                 >
