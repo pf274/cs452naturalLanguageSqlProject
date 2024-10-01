@@ -1,15 +1,64 @@
 CREATE TABLE Restaurants (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   restaurantName varchar(255) COLLATE NOCASE,
-  overallRating REAL
+  overallRating REAL DEFAULT NULL
 );
 
 CREATE TABLE Reviews (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  restaurantName varchar(244) COLLATE NOCASE,
+  restaurantName varchar(255) COLLATE NOCASE,
   rating INTEGER,
   review TEXT COLLATE NOCASE,
   reviewer varchar(255) COLLATE NOCASE,
+  FOREIGN KEY(restaurantName) REFERENCES Restaurants(restaurantName)
+);
+
+CREATE TRIGGER update_overall_rating_after_insert
+AFTER INSERT ON Reviews
+FOR EACH ROW
+BEGIN
+  UPDATE Restaurants
+  SET overallRating = (
+    SELECT AVG(rating)
+    FROM Reviews
+    WHERE restaurantName = NEW.restaurantName
+  )
+  WHERE restaurantName = NEW.restaurantName;
+END;
+
+CREATE TRIGGER update_overall_rating_after_update
+AFTER UPDATE ON Reviews
+FOR EACH ROW
+BEGIN
+  UPDATE Restaurants
+  SET overallRating = (
+    SELECT AVG(rating)
+    FROM Reviews
+    WHERE restaurantName = NEW.restaurantName
+  )
+  WHERE restaurantName = NEW.restaurantName;
+END;
+
+CREATE TRIGGER update_overall_rating_after_delete
+AFTER DELETE ON Reviews
+FOR EACH ROW
+BEGIN
+  UPDATE Restaurants
+  SET overallRating = (
+    SELECT AVG(rating)
+    FROM Reviews
+    WHERE restaurantName = OLD.restaurantName
+  )
+  WHERE restaurantName = OLD.restaurantName;
+END;
+
+CREATE TABLE RestaurantContactInfo (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  restaurantName varchar(255) COLLATE NOCASE,
+  address varchar(255) COLLATE NOCASE,
+  phone varchar(12) COLLATE NOCASE,
+  email varchar(100) COLLATE NOCASE,
+  website varchar(100) COLLATE NOCASE,
   FOREIGN KEY(restaurantName) REFERENCES Restaurants(restaurantName)
 );
 

@@ -1,18 +1,29 @@
 const databaseDescription = `Database:
 CREATE TABLE Restaurants (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  restaurantName varchar(255) COLLATE NOCASE,
+  restaurantName varchar(255),
   overallRating REAL
 );
 
 CREATE TABLE Reviews (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  restaurantName varchar(244) COLLATE NOCASE,
+  restaurantName varchar(255),
   rating INTEGER,
-  review TEXT COLLATE NOCASE,
-  reviewer varchar(255) COLLATE NOCASE,
+  review TEXT,
+  reviewer varchar(255),
   FOREIGN KEY(restaurantName) REFERENCES Restaurants(restaurantName)
-);`;
+);
+
+CREATE TABLE RestaurantContactInfo (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  restaurantName varchar(255) COLLATE NOCASE,
+  address varchar(255) COLLATE NOCASE,
+  phone varchar(12) COLLATE NOCASE,
+  email varchar(100) COLLATE NOCASE,
+  website varchar(100) COLLATE NOCASE,
+  FOREIGN KEY(restaurantName) REFERENCES Restaurants(restaurantName)
+);
+`;
 
 export function getQueryInstructions() {
   return `Your job is to create SQLite queries to answer the user's question in context of the conversation. Use the provided database schema to structure your queries. You may only respond with queries as a string. You may only retrieve a maximum of ten rows per query. Each query should end with a semicolon AND SHOULD RETURN ALL FIELDS.
