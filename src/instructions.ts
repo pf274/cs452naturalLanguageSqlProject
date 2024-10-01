@@ -29,6 +29,9 @@ export function getQueryInstructions() {
   return `Your job is to create SQLite queries to answer the user's question in context of the conversation. Use the provided database schema to structure your queries. You may only respond with queries as a string. You may only retrieve a maximum of ten rows per query. Each query should end with a semicolon AND SHOULD RETURN ALL FIELDS.
 ${databaseDescription}
 
+VERY IMPORTANT: To get a list of restaurants in response to a question like "what restaurants are available?" (Example):
+SELECT * FROM Restaurants ORDER BY RANDOM();
+
 To find the average rating for a restaurant (Example):
 SELECT overallRating FROM Restaurants WHERE restaurantName="Taco Bell"
 

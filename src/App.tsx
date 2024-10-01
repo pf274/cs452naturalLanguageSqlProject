@@ -139,7 +139,7 @@ function App() {
         >
           <Typography variant="h4">Restaurant AI</Typography>
           <div style={{ flex: 1 }} />
-          <div id="scrollableMessages" style={{ display: "block", flexDirection: "column", justifyContent: "flex-end", overflow: "auto" }}>
+          <div id="scrollableMessages" style={{ display: "block", flexDirection: "column", justifyContent: "flex-end", overflowY: "auto" }}>
             {chatMessages.map((chatMessage, index) => (
               <ChatMessageComponent
                 key={index}

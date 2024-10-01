@@ -79,17 +79,18 @@ export function ChatMessageComponent({ loading, date, message, isUser, update, q
         alignItems: isUser ? "flex-end" : "flex-start",
         padding: "0.5em",
         gap: "0.25em",
+        maxWidth: "100%",
       }}
     >
       <div
         style={{
           padding: "0.75em",
+          maxWidth: "75%",
           borderRadius: "1em",
           borderBottomLeftRadius: isUser ? "1em" : "0",
           borderBottomRightRadius: isUser ? "0" : "1em",
           background: isUser ? "linear-gradient(to bottom, #8BC34A, #4CAF50)" : "linear-gradient(to bottom, #2196F3, #3F51B5)",
           color: "white",
-          maxWidth: "50%",
           textWrap: "balance",
           position: "relative",
         }}
