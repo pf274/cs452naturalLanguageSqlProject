@@ -59,12 +59,24 @@ ${failedQueries.length > 0 ? `Failed Queries you need to fix:\n${failedQueries.j
 }
 
 export function getResponseInstructions(queryResponses: { success: Record<string, Record<string, any>[]>; fail: string[] }) {
+  const limitedQueryResponses = JSON.parse(JSON.stringify(queryResponses));
+  if (limitedQueryResponses.success.length > 10) {
+    limitedQueryResponses.success = limitedQueryResponses.success.slice(0, 10);
+  }
+  for (const key in limitedQueryResponses.success) {
+    if (limitedQueryResponses.success[key].length > 10) {
+      limitedQueryResponses.success[key] = limitedQueryResponses.success[key].slice(0, 10);
+    }
+  }
+  if (limitedQueryResponses.fail.length > 10) {
+    limitedQueryResponses.fail = limitedQueryResponses.fail.slice(0, 10);
+  }
   return `You are a helpful assistant that helps a user find a great restaurant by answering their questions in context of the conversation. The restaurants' information is kept in a database with this sql schema:
 
 ${databaseDescription}
 
 These are some relevant queries and their responses:
-${JSON.stringify(queryResponses, null, 2)}
+${JSON.stringify(limitedQueryResponses, null, 2)}
 
 Do not mention the existence of a database or SQL queries in your response.
 If looking at multiple reviews, summarize what they say to be concise in your response.

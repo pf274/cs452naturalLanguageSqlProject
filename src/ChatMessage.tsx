@@ -3,15 +3,12 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-  Badge,
-  Box,
   Chip,
   Dialog,
   DialogContent,
   DialogContentText,
   DialogTitle,
   Divider,
-  Modal,
   Typography,
 } from "@mui/material";
 import { useState } from "react";
@@ -106,35 +103,40 @@ export function ChatMessageComponent({ loading, date, message, isUser, update, q
 
         {!loading && !isUser && queryResponses && Object.keys(queryResponses.success).length + queryResponses.fail.length > 0 && (
           <Chip
-            sx={{ position: "absolute", top: "-0.5em", left: "-0.5em" }}
+            sx={{ position: "absolute", bottom: "-0.5em", right: "-0.5em" }}
             variant="filled"
             color="primary"
             size="small"
-            label={String(Object.keys(queryResponses.success).length + queryResponses.fail.length)}
+            label={Object.keys(queryResponses.success).length + queryResponses.fail.length}
             onClick={openQueries}
           />
         )}
         <Dialog open={open} onClose={() => setOpen(false)}>
-          <DialogTitle>Query Responses</DialogTitle>
+          <DialogTitle>SQL Queries</DialogTitle>
           <DialogContent>
             <Divider />
             {queryResponses && Object.keys(queryResponses.success).length > 0 && (
               <div>
                 <DialogContentText>Successful Responses</DialogContentText>
-                {queryResponses &&
-                  Object.keys(queryResponses.success).map((key) => (
-                    <Accordion key={key}>
-                      <AccordionSummary expandIcon={<ExpandMore />}>
-                        <Typography variant="caption">Request: {key}</Typography>
-                      </AccordionSummary>
-                      <AccordionDetails>
-                        <p
-                          style={{ whiteSpace: "pre-wrap" }}
-                          dangerouslySetInnerHTML={{ __html: JSON.stringify(queryResponses.success[key], null, 2) }}
-                        />
-                      </AccordionDetails>
-                    </Accordion>
-                  ))}
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.5em" }}>
+                  {queryResponses &&
+                    Object.keys(queryResponses.success).map((key) => (
+                      <Accordion key={key}>
+                        <AccordionSummary expandIcon={<ExpandMore />}>
+                          <Typography variant="subtitle1" sx={{ padding: 0, margin: 0, textWrap: "balance" }}>
+                            {key}
+                          </Typography>
+                        </AccordionSummary>
+                        <AccordionDetails sx={{ paddingTop: 0 }}>
+                          <Divider component="div" sx={{ borderWidth: 2, borderRadius: 1 }} />
+                          <p
+                            style={{ whiteSpace: "pre-wrap", margin: 0, maxHeight: "33vh", overflowY: "auto" }}
+                            dangerouslySetInnerHTML={{ __html: JSON.stringify(queryResponses.success[key], null, 2) }}
+                          />
+                        </AccordionDetails>
+                      </Accordion>
+                    ))}
+                </div>
               </div>
             )}
             <Divider />
