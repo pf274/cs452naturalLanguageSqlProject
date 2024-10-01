@@ -46,6 +46,7 @@ function App() {
   const [snackError, setSnackError] = useState<string>("");
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [update, setUpdate] = useState(0);
+  const [waiting, setWaiting] = useState(false);
   const messagesEndRef = useRef<any>(null);
 
   useEffect(() => {
@@ -86,12 +87,19 @@ function App() {
   }
 
   async function submitPrompt() {
-    setLoading(true);
+    setWaiting(true);
+    const waitPromise = new Promise((resolve) =>
+      setTimeout(() => {
+        setWaiting(false), resolve(true);
+      }, Math.random() * 1000 + 500)
+    );
     setPrompt("");
     try {
       console.log(`------------------\n---New Question---\n------------------\n${prompt}`);
       const usersChatMessage = new ChatMessage(new Date(), prompt, true);
       setChatMessages((prev) => [...prev, usersChatMessage]);
+      await waitPromise;
+      setLoading(true);
       const queries = await getQueries(apiKey, prompt, chatMessages);
       const queryResponses = await runQueries(queries);
       const response = await getResponse(apiKey, prompt, queryResponses, chatMessages);
@@ -140,7 +148,7 @@ function App() {
                 update={update}
               />
             ))}
-            {loading && keyVerified && <LoadingMessage />}
+            {loading && keyVerified && !waiting && <LoadingMessage />}
             <div ref={messagesEndRef} />
           </div>
           {!keyVerified && (

@@ -103,9 +103,9 @@ export function ChatMessageComponent({ loading, date, message, isUser, update, q
 
         {!loading && !isUser && queryResponses && Object.keys(queryResponses.success).length + queryResponses.fail.length > 0 && (
           <Chip
-            sx={{ position: "absolute", bottom: "-0.5em", right: "-0.5em" }}
+            sx={{ position: "absolute", bottom: "-0.66em", right: "-0.66em" }}
             variant="filled"
-            color="primary"
+            color={queryResponses.fail.length > 0 ? "error" : "primary"}
             size="small"
             label={Object.keys(queryResponses.success).length + queryResponses.fail.length}
             onClick={openQueries}
@@ -143,7 +143,12 @@ export function ChatMessageComponent({ loading, date, message, isUser, update, q
             {queryResponses && queryResponses.fail.length > 0 && (
               <div>
                 <DialogContentText>Failed Responses</DialogContentText>
-                {queryResponses && queryResponses.fail.map((key) => <DialogContentText key={key}>{key}</DialogContentText>)}
+                {queryResponses &&
+                  queryResponses.fail.map((key) => (
+                    <DialogContentText key={key} sx={{ paddingLeft: "1em" }}>
+                      {key}
+                    </DialogContentText>
+                  ))}
               </div>
             )}
           </DialogContent>
