@@ -99,15 +99,15 @@ function App() {
     setPrompt("");
     try {
       console.log(`------------------\n---New Question---\n------------------\n${prompt}`);
-      const usersChatMessage = new ChatMessage(new Date(), prompt, true);
-      setChatMessages((prev) => [...prev, usersChatMessage]);
+      const userChatMessage = new ChatMessage(new Date(), prompt, true);
+      setChatMessages((prev) => [...prev, userChatMessage]);
       await waitPromise;
       setLoading(true);
       const queries = await getQueries(apiKey, prompt, chatMessages);
       const queryResponses = await runQueries(queries);
       const response = await getResponse(apiKey, prompt, queryResponses, chatMessages);
-      const assistantsChatMessage = new ChatMessage(new Date(), response!, false, queries, queryResponses);
-      setChatMessages((prev) => [...prev, assistantsChatMessage]);
+      const assistantChatMessage = new ChatMessage(new Date(), response!, false, queries, queryResponses);
+      setChatMessages((prev) => [...prev, assistantChatMessage]);
     } catch (err) {
       setSnackError((err as Error).message);
       setErrorShown(true);
