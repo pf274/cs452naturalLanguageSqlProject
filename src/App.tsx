@@ -74,6 +74,7 @@ function App() {
       setSnackError(error);
       setErrorShown(true);
       setKeyVerified(false);
+      setLoading(false);
       return;
     }
     setTimeout(() => {
