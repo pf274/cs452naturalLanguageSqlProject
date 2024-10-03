@@ -85,7 +85,7 @@ function App() {
       );
       setChatMessages((prev) => [...prev, introductionMessage]);
       setLoading(false);
-    }, 1000);
+    }, 100);
     setKeyVerified(true);
   }
 
