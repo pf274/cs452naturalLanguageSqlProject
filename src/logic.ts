@@ -201,7 +201,7 @@ export async function runQueries(queries: string[]): Promise<{ success: Record<s
       console.log(`${query}\n Returned: ${JSON.stringify(formattedResponse, null, 2)}`);
     } catch (err) {
       if ((err as Error).message.includes("to be an array with one entry.")) {
-        response.success[query] = [{ message: "now rows returned" }];
+        response.success[query] = [{ message: "no rows returned" }];
       } else {
         console.log(`Error running query: ${query}`);
         response.fail.push(query);
