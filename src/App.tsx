@@ -188,6 +188,7 @@ function App() {
                   id="keyInput"
                   label="Gemini API Key"
                   variant="outlined"
+                  type="password"
                   value={apiKey}
                   onChange={(e) => {
                     setApiKey(e.target.value);
