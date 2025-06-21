@@ -1,13 +1,18 @@
 import { Parser } from "node-sql-parser";
-import OpenAI from "openai";
 import initSqlJs, { Database } from "sql.js";
 import sqliteUrl from "./assets/sql-wasm.wasm?url";
 import databaseInfo from "./assets/databaseInfo.sqlite?raw";
-import { ChatMessage } from "./ChatMessage";
-import { getFixQueryInstructions, getQueryInstructions, getResponseInstructions } from "./instructions";
+import { getQueryInstructions, getResponseAgentInstructions, getResponseInstructions } from "./instructions";
+import { Chat, GoogleGenAI } from "@google/genai";
 class DBState {
   static initialized = false;
   static instance: Database | null = null;
+}
+
+class AgentState {
+  static agent: GoogleGenAI | null = null;
+  static queryInstance: Chat | null = null;
+  static conversationInstance: Chat | null = null;
 }
 
 async function initDatabase() {
@@ -31,95 +36,69 @@ export async function isValidApiKey(apiKey: string): Promise<void | string> {
     if (!apiKey || apiKey.length == 0) {
       return "API key is required";
     }
-    const openai = new OpenAI({ apiKey, dangerouslyAllowBrowser: true });
-    await openai.models.list();
+    const agent = new GoogleGenAI({ apiKey });
+    const response = await agent.models.countTokens({
+      model: "gemini-2.0-flash",
+      contents: "Hello",
+    });
+    console.log(`Count token response: `, response);
     console.log("API Key is valid");
     return;
   } catch (error) {
-    if (((error as any).code = "invalid_api_key")) {
-      return "Invalid API key";
-    } else {
-      return (error as any).error;
-    }
+    return "Invalid API key";
   }
 }
 
-async function generateQueries(apiKey: string, prompt: string, history: ChatMessage[]): Promise<string[]> {
+async function generateQueries(apiKey: string, prompt: string): Promise<string[]> {
   try {
-    const openai = new OpenAI({ apiKey, dangerouslyAllowBrowser: true });
-    const historyMessages = history
-      .map((chatMessage) => ({
-        role: chatMessage.isUser ? "user" : "assistant",
-        content: chatMessage.isUser
-          ? chatMessage.message
-          : chatMessage.queries.length > 0
-          ? chatMessage.queries.join(" ")
-          : `Another ai agent responded (NOT YOU): ${chatMessage.message}`,
-      }))
-      .slice(-3) as any;
-    const instructions = getQueryInstructions();
-    console.log(instructions);
-    const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [
-        {
-          role: "system",
-          content: instructions,
-        },
-        ...historyMessages,
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
-    });
-    if (response?.choices && response.choices.length > 0 && response.choices[0].message?.content) {
-      const generatedQueries = response.choices[0].message.content;
-      return generatedQueries
-        .split(";")
-        .map((entry) => entry.replace(/\n/g, " ").trim())
-        .filter((entry) => entry.length > 0)
-        .map((entry) => `${entry};`);
+    if (!AgentState.agent) {
+      AgentState.agent = new GoogleGenAI({ apiKey });
     }
-    throw new Error("failed to generate sql query: could not parse responses");
+    if (!AgentState.queryInstance) {
+      AgentState.queryInstance = AgentState.agent.chats.create({
+        model: "gemini-2.5-flash",
+        config: {
+          systemInstruction: getQueryInstructions(),
+          thinkingConfig: {
+            thinkingBudget: 2048,
+          },
+        },
+      });
+    }
+    const queryInstance = AgentState.queryInstance;
+    const response = await queryInstance.sendMessage({ message: prompt });
+    const text = response.text;
+    if (text) {
+      const startingIndex = text.indexOf("[");
+      const endingIndex = text.lastIndexOf("]");
+      if (startingIndex === -1 || endingIndex === -1 || startingIndex >= endingIndex) {
+        throw new Error(`failed to generate sql query: could not find valid JSON array in response: ${text}`);
+      }
+      const jsonArray = text.substring(startingIndex, endingIndex + 1);
+      if (jsonArray.length === 0) {
+        throw new Error(`failed to generate sql query: empty JSON array in response: ${text}`);
+      }
+      const parsedQueries = JSON.parse(jsonArray);
+      if (!Array.isArray(parsedQueries)) {
+        throw new Error(`failed to generate sql query: response is not a valid JSON array: ${text}`);
+      }
+      if (parsedQueries.length === 0) {
+        throw new Error(`failed to generate sql query: no queries generated in response: ${text}`);
+      }
+      return parsedQueries.map((query: string) => {
+        if (query.endsWith(";")) {
+          return query.trim();
+        }
+        return `${query.trim()};`;
+      });
+    }
+    throw new Error(`failed to generate sql query: could not parse response: ${text}`);
   } catch (err) {
     throw new Error(`failed to generate sql query: ${(err as Error).message}`);
   }
 }
 
-async function fixQueries(apiKey: string, prompt: string, failedQueries: string[]) {
-  try {
-    const openai = new OpenAI({ apiKey, dangerouslyAllowBrowser: true });
-    const instructions = getFixQueryInstructions(failedQueries);
-    console.log(instructions);
-    const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [
-        {
-          role: "system",
-          content: instructions,
-        },
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
-    });
-    if (response?.choices && response.choices.length > 0 && response.choices[0].message?.content) {
-      const generatedQueries = response.choices[0].message.content;
-      return generatedQueries
-        .split(";")
-        .map((entry) => entry.replace(/\n/g, " ").trim())
-        .filter((entry) => entry.length > 0)
-        .map((entry) => `${entry};`);
-    }
-    throw new Error("failed to fix sql queries: could not parse responses");
-  } catch (err) {
-    throw new Error(`failed to fix sql queries: ${(err as Error).message}`);
-  }
-}
-
-export async function getQueries(apiKey: string, prompt: string, history: ChatMessage[]): Promise<string[]> {
+export async function getQueries(apiKey: string, prompt: string): Promise<string[]> {
   const acceptedQueries: string[] = [];
   let generatedQueries: string[] = [];
   let failedQueries: string[] = [];
@@ -127,7 +106,7 @@ export async function getQueries(apiKey: string, prompt: string, history: ChatMe
   do {
     failedQueries = [];
     if (generatedQueries.length == 0) {
-      generatedQueries = await generateQueries(apiKey, prompt, history);
+      generatedQueries = await generateQueries(apiKey, prompt);
     }
     for (const query of generatedQueries) {
       const valid = validateQuery(query);
@@ -139,7 +118,7 @@ export async function getQueries(apiKey: string, prompt: string, history: ChatMe
       }
     }
     if (failedQueries.length > 0) {
-      generatedQueries = await fixQueries(apiKey, prompt, failedQueries);
+      // generatedQueries = await fixQueries(apiKey, prompt, failedQueries);
     }
     attempts++;
   } while (failedQueries.length != 0 && attempts < 3);
@@ -149,36 +128,33 @@ export async function getQueries(apiKey: string, prompt: string, history: ChatMe
 export async function getResponse(
   apiKey: string,
   prompt: string,
-  queryResponses: { success: Record<string, Record<string, any>[]>; fail: string[] },
-  history: ChatMessage[]
+  queryResponses: { success: Record<string, Record<string, any>[]>; fail: string[] }
 ): Promise<string> {
   try {
-    const openai = new OpenAI({ apiKey, dangerouslyAllowBrowser: true });
-    const historyMessages = history
-      .map((chatMessage) => ({
-        role: chatMessage.isUser ? "user" : "assistant",
-        content: chatMessage.message,
-      }))
-      .slice(-3) as any;
-    const instructions = getResponseInstructions(queryResponses);
-    console.log(instructions);
-    const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [
-        {
-          role: "system",
-          content: instructions,
-        },
-        ...historyMessages,
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
-    });
-    if (response?.choices && response.choices.length > 0 && response.choices[0].message?.content) {
-      return response.choices[0].message.content;
+    if (!AgentState.agent) {
+      AgentState.agent = new GoogleGenAI({ apiKey });
     }
+    if (!AgentState.conversationInstance) {
+      AgentState.conversationInstance = AgentState.agent.chats.create({
+        model: "gemini-2.5-flash",
+        config: {
+          systemInstruction: getResponseAgentInstructions(),
+          thinkingConfig: {
+            thinkingBudget: 1024,
+          },
+        },
+      });
+    }
+    const conversationInstance = AgentState.conversationInstance;
+    const conversationMessage = `user: ${prompt}\n ${getResponseInstructions(queryResponses)}`;
+    console.log(`Conversation message: ${conversationMessage}`);
+    const response = await conversationInstance.sendMessage({
+      message: conversationMessage,
+    });
+    if (response.text) {
+      return response.text;
+    }
+
     throw new Error("failed to generate response: could not parse response");
   } catch (err) {
     return `failed to generate response: ${(err as Error).message}`;

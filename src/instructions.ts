@@ -26,7 +26,7 @@ CREATE TABLE RestaurantContactInfo (
 `;
 
 export function getQueryInstructions() {
-  return `Your job is to create SQLite queries to answer the user's question in context of the conversation. Use the provided database schema to structure your queries. You may only respond with queries as a string. You may only retrieve a maximum of ten rows per query. Each query should end with a semicolon AND SHOULD RETURN ALL FIELDS.
+  return `Your job is to create SQLite queries to answer the user's question in context of the conversation. Use the provided database schema to structure your queries. You may only respond with a JSON array of queries. Begin your message with '[' and end with ']'. You may only retrieve a maximum of ten rows per query. Each query should end with a semicolon AND SHOULD RETURN ALL FIELDS.
 ${databaseDescription}
 
 VERY IMPORTANT: To get a list of restaurants in response to a question like "what restaurants are available?" (Example):
@@ -74,15 +74,15 @@ export function getResponseInstructions(queryResponses: { success: Record<string
   if (limitedQueryResponses.fail.length > 10) {
     limitedQueryResponses.fail = limitedQueryResponses.fail.slice(0, 10);
   }
-  return `You are a helpful assistant that helps a user find a great restaurant by answering their questions in context of the conversation. The restaurants' information is kept in a database with this sql schema:
-
-${databaseDescription}
-
-These are some relevant queries and their responses:
+  return `These are some relevant queries and their responses:
 ${JSON.stringify(limitedQueryResponses, null, 2)}
 
 Do not mention the existence of a database or SQL queries in your response.
 If looking at multiple reviews, summarize what they say to be concise in your response.
 If you don't have enough information from the database queries, don't make stuff up. Just say you don't know.
 `.trim();
+}
+
+export function getResponseAgentInstructions() {
+  return "You are a helpful restaurant AI assistant that helps the user find a restaurant that fits their preferences. You'll be given a prompt provided by the user along with some relevant information from the database. Form a conversational and friendly response to answer their questions.";
 }

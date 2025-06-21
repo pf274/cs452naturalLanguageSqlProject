@@ -106,9 +106,9 @@ function App() {
       setChatMessages((prev) => [...prev, userChatMessage]);
       await waitPromise;
       setLoading(true);
-      const queries = await getQueries(apiKey, prompt, chatMessages);
+      const queries = await getQueries(apiKey, prompt);
       const queryResponses = await runQueries(queries);
-      const response = await getResponse(apiKey, prompt, queryResponses, chatMessages);
+      const response = await getResponse(apiKey, prompt, queryResponses);
       const assistantChatMessage = new ChatMessage(new Date(), response!, false, queries, queryResponses);
       setChatMessages((prev) => [...prev, assistantChatMessage]);
     } catch (err) {
@@ -186,7 +186,7 @@ function App() {
               <div style={{ display: "flex", flexDirection: "row", flexWrap: "nowrap", gap: "1em" }}>
                 <TextField
                   id="keyInput"
-                  label="OpenAI API Key"
+                  label="Gemini API Key"
                   variant="outlined"
                   value={apiKey}
                   onChange={(e) => {
